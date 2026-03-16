@@ -1,0 +1,38 @@
+DEFINE
+    /**
+     * AltText_Context
+     * Creates a standardized context string for Alt Text.
+     *
+     * Use generic label/value pairs so this works with ANY slicer or filter.
+     * Examples of what Label1Name / Label2Name might represent:
+     *   - "Category", "Department", "Division", "Segment", "Region", "Brand", etc.
+     *
+     * Example output:
+     *   "Context: Category = Bikes, Department = Sales. Period between 01 Jan 2024 and 31 Mar 2024."
+     */
+
+    FUNCTION AltText_Context =
+    (
+        Label1Name    : STRING,    // e.g., "Category"
+        Label1Value   : STRING,    // e.g., SELECTEDVALUE(Category[Category])
+
+        Label2Name    : STRING,    // e.g., "Department" (or "Region", "Segment", ...)
+        Label2Value   : STRING,    // e.g., SELECTEDVALUE(Department[Department])
+
+        StartDate     : DATETIME,  // e.g., MIN(Date[Date])
+        EndDate       : DATETIME   // e.g., MAX(Date[Date])
+    )
+    =>
+        "Context: "
+        & Label1Name & " = " & Label1Value & ", "
+        & Label2Name & " = " & Label2Value & ". "
+        & "Period between "
+        & FORMAT(StartDate, "dd MMM yyyy")
+        & " and "
+        & FORMAT(EndDate, "dd MMM yyyy")
+        & "."
+
+EVALUATE
+{
+    AltText_Context(Label1Name, Label1Value, Label2Name, Label2Value, StartDate, EndDate)
+}
