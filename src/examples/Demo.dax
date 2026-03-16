@@ -1,0 +1,19 @@
+// Demo: Alt Text Context
+AltText_Context(
+    "Category",
+    "Bikes",
+    "Department",
+    "Online",
+    DATE(2024,1,1),
+    DATE(2024,3,31)
+)
+
+// Demo: Alt Text Change Narrative
+AltText_ChangeNarrative(
+    "Total Sales",
+    125000,
+    115000,
+    FORMAT(125000, "£#,0.0"),
+    "Context: Category = Bikes, Department = Online"
+)
+``
