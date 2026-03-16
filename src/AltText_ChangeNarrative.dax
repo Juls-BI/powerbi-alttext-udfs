@@ -1,0 +1,71 @@
+DEFINE
+    /**
+     * AltText_ChangeNarrative
+     * Generates an accessible narrative describing a KPI value,
+     * optional comparison vs a previous period, and optional contextual text.
+     *
+     * This function is fully generic and works with ANY measure.
+     * 
+     * Example parameter usage:
+     *   MetricLabel:        "Total Sales"
+     *   CurrentValue:       SUM(Sales[Amount])
+     *   PreviousValue:      CALCULATE(SUM(Sales[Amount]), DATEADD(Date[Date], -1, MONTH))
+     *   CurrentFormatted:   FORMAT(SUM(Sales[Amount]), "£#,0.0")
+     *   ContextText:        "Context: Category = Bikes, Department = Online"
+     *
+     * Example output:
+     *   "Total Sales is £125K. It has increased by 8.4% versus the previous period.
+     *    Context: Category = Bikes, Department = Online."
+     */
+
+    FUNCTION AltText_ChangeNarrative =
+    (
+        MetricLabel        : STRING,   // Example: "Revenue", "Headcount", "Stock Level"
+        CurrentValue       : NUMERIC,  // Unformatted metric value
+        PreviousValue      : NUMERIC,  // Typically LASTMONTH(), PREVIOUSMONTH(), etc.
+        CurrentFormatted   : STRING,   // Pre-formatted value for narrative
+        ContextText        : STRING    // Optional context from AltText_Context or custom text
+    )
+    =>
+
+    VAR HasPrev    = NOT ISBLANK(PreviousValue)
+    VAR Delta      = CurrentValue - PreviousValue
+    VAR DeltaPct   = DIVIDE(Delta, PreviousValue)
+
+    VAR Direction =
+        IF(
+            NOT HasPrev,
+            BLANK(),
+            IF(Delta > 0, "increased",
+                IF(Delta < 0, "decreased", "remained flat")
+            )
+        )
+
+    VAR PctText =
+        IF(
+            NOT HasPrev || Delta = 0,
+            BLANK(),
+            FORMAT(ABS(DeltaPct), "0.0%")
+        )
+
+    VAR ChangeClause =
+        IF(
+            NOT HasPrev,
+            "",
+            IF(
+                Delta = 0,
+                " It is unchanged versus the previous period.",
+                " It has " & Direction & " by " & PctText & " versus the previous period."
+            )
+        )
+
+    VAR ContextClause =
+        IF(ISBLANK(ContextText), "", " " & ContextText)
+
+    RETURN
+        MetricLabel & " is " & CurrentFormatted & "." & ChangeClause & ContextClause
+
+EVALUATE
+{
+    AltText_ChangeNarrative(MetricLabel, CurrentValue, PreviousValue, CurrentFormatted, ContextText)
+}
