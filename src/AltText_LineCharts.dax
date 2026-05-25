@@ -1,0 +1,208 @@
+/* ============================================================================
+   AltText Line Chart UDFs and Required Measures
+   Repository: https://github.com/Juls-BI/powerbi-alttext-udfs
+   Author: Juliana Smith
+   Purpose:
+   This file contains reusable DAX UDFs and supporting measures for generating
+   accessible, descriptive alt text for line charts in Power BI.
+
+   Contents:
+   - AltText_LineChart UDF
+   - Required base measures list
+   - Example final measure for calling the UDF
+
+   Notes:
+   - All UDFs in this repository follow the same documentation pattern.
+   - Measures listed here must exist in the data model for the UDF to work.
+   - This file is safe to copy into any Power BI model.
+   ============================================================================
+*/
+
+/* ============================================================================
+   AltText_LineChart UDF
+   Purpose:
+   Generates dynamic, descriptive alt text for line charts showing Revenue and Cost trends.
+   Includes month over month (MoM) and year to date (YTD) insights, with contextual wording
+   based on percentage changes and current vs previous month values.
+
+   Key Features:
+   - Automatically detects trend strength (strong, slight, stable)
+   - Provides formatted numeric and percentage comparisons
+   - Summarises YTD totals for Revenue and Cost
+   - Designed for accessibility and executive level clarity
+
+   Inputs:
+   TrendPeriod, MeasuresText, CategoryText, FiltersText, UnitsText
+
+   Outputs:
+   Structured alt text combining trend, measure, filter, and insight clauses
+   ============================================================================
+*/
+
+DEFINE
+
+FUNCTION AltText_LineChart =
+(
+    TrendPeriod: STRING,
+    MeasuresText: STRING,
+    CategoryText: STRING,
+    FiltersText: STRING,
+    UnitsText: STRING
+) =>
+
+/* --- GLOBAL MoM logic --- */
+VAR RevChange = [MoM % Revenue (Global)]
+VAR CostChange = [MoM % Cost (Global)]
+
+VAR CurrentMonth = [Latest Reporting Month]
+VAR PrevMonth    = [Previous Reporting Month]
+
+/* --- Current and Previous Month Values --- */
+VAR RevCurrent = [Revenue Current (Global)]
+VAR RevPrev    = [Revenue Previous (Global)]
+
+VAR CostCurrent = [Cost Current (Global)]
+VAR CostPrev    = [Cost Previous (Global)]
+
+/* --- YTD Values --- */
+VAR RevYTD  = [Revenue YTD (Global)]
+VAR CostYTD = [Cost YTD (Global)]
+
+/* --- Trend wording --- */
+VAR RevTrendText =
+    SWITCH(
+        TRUE(),
+        ISBLANK(RevChange), "Revenue trend unavailable",
+        RevChange > 0.05,  "Revenue is increasing strongly",
+        RevChange > 0,     "Revenue is increasing slightly",
+        RevChange < -0.05, "Revenue is decreasing significantly",
+        RevChange < 0,     "Revenue is decreasing slightly",
+        "Revenue is stable"
+    )
+
+VAR CostTrendText =
+    SWITCH(
+        TRUE(),
+        ISBLANK(CostChange), "Cost trend unavailable",
+        CostChange > 0.05,  "Cost is increasing strongly",
+        CostChange > 0,     "Cost is increasing slightly",
+        CostChange < -0.05, "Cost is decreasing significantly",
+        CostChange < 0,     "Cost is decreasing slightly",
+        "Cost is stable"
+    )
+
+/* --- Detailed insight sentences --- */
+VAR CostInsight =
+    CostTrendText & ". Current month cost is " &
+    FORMAT(CostCurrent, "#,##0") & ", " &
+    FORMAT(CostChange, "0.0%") & " " &
+    IF(CostChange < 0, "lower", "higher") &
+    " than the previous month (" &
+    FORMAT(CostPrev, "#,##0") & "). "
+
+VAR RevInsight =
+    RevTrendText & ". Current month revenue is " &
+    FORMAT(RevCurrent, "#,##0") & ", " &
+    FORMAT(RevChange, "0.0%") & " " &
+    IF(RevChange < 0, "lower", "higher") &
+    " than the previous month (" &
+    FORMAT(RevPrev, "#,##0") & "). "
+
+/* --- YTD sentence --- */
+VAR YTDInsight =
+    "Year to date revenue is " & FORMAT(RevYTD, "#,##0") &
+    " and year to date cost is " & FORMAT(CostYTD, "#,##0") & ". "
+
+/* --- Clauses in your preferred order --- */
+VAR TrendClause =
+    IF ( ISBLANK ( TrendPeriod ), "", "Trend over " & TrendPeriod & ". " )
+
+VAR MeasuresClause =
+    IF ( ISBLANK ( MeasuresText ), "", "Measures shown: " & MeasuresText & ". " )
+
+VAR CategoryClause =
+    IF ( ISBLANK ( CategoryText ), "", "Categories: " & CategoryText & ". " )
+
+VAR FiltersClause =
+    IF ( ISBLANK ( FiltersText ), "", "Filters applied: " & FiltersText & ". " )
+
+VAR UnitsClause =
+    IF ( ISBLANK ( UnitsText ), "", "Units: " & UnitsText & ". " )
+
+RETURN
+    TrendClause &
+    MeasuresClause &
+    CategoryClause &
+    FiltersClause &
+    CostInsight &
+    RevInsight &
+    YTDInsight &
+    UnitsClause
+
+
+/* ============================================================================
+   REQUIRED MEASURES FOR AltText_LineChart
+   These measures MUST exist in the data model for the UDF to work correctly.
+   All must return numeric or date values as specified.
+
+   IMPORTANT:
+   If your model uses different measure names than the ones listed below,
+   you MUST update the UDF to reference your actual measure names.
+   The UDF does NOT auto-detect or adapt to renamed measures.
+
+   1. MoM % Measures (numeric)
+      - [MoM % Revenue (Global)]
+      - [MoM % Cost (Global)]
+      Purpose: Used for trend detection and MoM comparisons.
+
+   2. Reporting Month Measures (date)
+      - [Latest Reporting Month]
+      - [Previous Reporting Month]
+      Purpose: Identifies current and previous periods.
+
+   3. Current Month Values (numeric)
+      - [Revenue Current (Global)]
+      - [Cost Current (Global)]
+      Purpose: Used in narrative sentences for current month values.
+
+   4. Previous Month Values (numeric)
+      - [Revenue Previous (Global)]
+      - [Cost Previous (Global)]
+      Purpose: Used in narrative sentences for previous month values.
+
+   5. YTD Values (numeric)
+      - [Revenue YTD (Global)]
+      - [Cost YTD (Global)]
+      Purpose: Used for year-to-date summary sentence.
+
+   6. Text Inputs (text)
+      - [Trend Period]
+      - [Region Filters]
+      Purpose: Passed directly into the UDF as descriptive text.
+
+   Notes:
+   - All numeric measures must return numbers, not formatted text.
+   - All date measures must return valid date values.
+   - Text measures must return plain text without formatting.
+   - If you rename any measure in your model, update the UDF accordingly.
+   ============================================================================
+*/
+
+   EXAMPLE: Final Measure Calling the UDF
+   This measure shows how to call the AltText_LineChart UDF from your model.
+
+   Notes:
+   - Replace [Trend Period] and [Region Filters] with your own text measures.
+   - UnitsText ("GBP") can be changed to any currency or unit.
+   - CategoryText is optional and can be replaced with a category list measure.
+   ============================================================================
+*/
+
+AltText_LineChart_Final =
+AltText_LineChart(
+    [Trend Period],          -- TrendPeriod (text)
+    "Revenue and Cost",      -- MeasuresText (text)
+    BLANK(),                 -- CategoryText (text or blank)
+    [Region Filters],        -- FiltersText (text)
+    "GBP"                    -- UnitsText (text)
+)
