@@ -39,6 +39,37 @@ Generates an accessible narrative describing:
 **Example output: Total Sales is £125K. It has increased by 8.4% versus the previous period.
 Context: Category = Bikes, Department = Online.
 
+### 3) ) AltText_LineChart
+Generates descriptive, accessible alt text for line charts showing Revenue and Cost trends. Includes:
+•	Month over month trend detection
+•	Current vs previous month comparisons
+•	YTD revenue and cost summary
+•	Automatic wording for strong/slight/stable trends
+•	Fully formatted narrative for screen readers
+File: /src/AltText_LineCharts.dax
+Required Measures
+These measures must exist in your model (names can be changed, but then you must update the UDF):
+•	MoM % Measures (numeric)
+o	MoM % Revenue (Global)
+o	MoM % Cost (Global)
+•	Reporting Month Measures (date)
+o	Latest Reporting Month
+o	Previous Reporting Month
+•	Current Month Values (numeric)
+o	Revenue Current (Global)
+o	Cost Current (Global)
+•	Previous Month Values (numeric)
+o	Revenue Previous (Global)
+o	Cost Previous (Global)
+•	YTD Values (numeric)
+o	Revenue YTD (Global)
+o	Cost YTD (Global)
+•	Text Inputs (text)
+o	Trend Period
+o	Region Filters
+If your model uses different measure names, update the UDF accordingly.
+
+
 ##  How to Use These Functions
 
 ### A) Import into Power BI
@@ -68,4 +99,13 @@ AltText_ChangeNarrative(
     [Sales Amount Previous Period],
     FORMAT([Sales Amount], "£#,0.0"),
     [AltText_Context Measure]
+)
+
+
+AltText_LineChart(
+    [Trend Period],          -- TrendPeriod
+    "Revenue and Cost",      -- MeasuresText
+    BLANK(),                 -- CategoryText (or [Category List])
+    [Region Filters],        -- FiltersText
+    "GBP"                    -- UnitsText
 )
