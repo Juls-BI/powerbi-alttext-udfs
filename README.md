@@ -47,27 +47,29 @@ Generates descriptive, accessible alt text for line charts showing Revenue and C
 •	Automatic wording for strong/slight/stable trends
 •	Fully formatted narrative for screen readers
 File: /src/AltText_LineCharts.dax
-Required Measures
-These measures must exist in your model (names can be changed, but then you must update the UDF):
-•	MoM % Measures (numeric)
-o	MoM % Revenue (Global)
-o	MoM % Cost (Global)
-•	Reporting Month Measures (date)
-o	Latest Reporting Month
-o	Previous Reporting Month
-•	Current Month Values (numeric)
-o	Revenue Current (Global)
-o	Cost Current (Global)
-•	Previous Month Values (numeric)
-o	Revenue Previous (Global)
-o	Cost Previous (Global)
-•	YTD Values (numeric)
-o	Revenue YTD (Global)
-o	Cost YTD (Global)
-•	Text Inputs (text)
-o	Trend Period
-o	Region Filters
-If your model uses different measure names, update the UDF accordingly.
+AltText_LineChart_Final =
+AltText_LineChart(
+    /* Text parameters */
+    [Trend Period Text],     -- e.g., "Jan–Dec 2024"
+    [Measures Description],  -- e.g., "Revenue, Cost"
+    [Category Description],  -- optional text or BLANK()
+    [Filters Description],   -- e.g., region, segment
+    [Units Text],            -- e.g., "GBP"
+
+    /* MoM % numeric inputs */
+    [Revenue MoM % Change],
+    [Cost MoM % Change],
+
+    /* Current and previous month numeric inputs */
+    [Revenue Current Month],
+    [Revenue Previous Month],
+    [Cost Current Month],
+    [Cost Previous Month],
+
+    /* YTD numeric inputs */
+    [Revenue YTD],
+    [Cost YTD]
+)
 
 
 ##  How to Use These Functions
@@ -102,10 +104,26 @@ AltText_ChangeNarrative(
 )
 
 
+AltText_LineChart_Final =
 AltText_LineChart(
-    [Trend Period],          -- TrendPeriod
-    "Revenue and Cost",      -- MeasuresText
-    BLANK(),                 -- CategoryText (or [Category List])
-    [Region Filters],        -- FiltersText
-    "GBP"                    -- UnitsText
+    /* Text parameters */
+    [Trend Period Text],     -- e.g., "Jan–Dec 2024"
+    [Measures Description],  -- e.g., "Revenue, Cost"
+    [Category Description],  -- optional text or BLANK()
+    [Filters Description],   -- e.g., region, segment
+    [Units Text],            -- e.g., "GBP"
+
+    /* MoM % numeric inputs */
+    [Revenue MoM % Change],
+    [Cost MoM % Change],
+
+    /* Current and previous month numeric inputs */
+    [Revenue Current Month],
+    [Revenue Previous Month],
+    [Cost Current Month],
+    [Cost Previous Month],
+
+    /* YTD numeric inputs */
+    [Revenue YTD],
+    [Cost YTD]
 )
