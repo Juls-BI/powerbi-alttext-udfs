@@ -1,0 +1,83 @@
+DEFINE
+    /// Builds alt text describing completion progress
+    FUNCTION ProgressBarAltText = (
+            context: STRING,
+            percentComplete: DOUBLE
+        ) =>
+            VAR _Status =
+                SWITCH(
+                    TRUE(),
+                    percentComplete >= 1, "finished",
+                    percentComplete >= 0.75, "nearly finished",
+                    percentComplete >= 0.25, "underway",
+                    "just starting"
+                )
+            RETURN
+                context & " - " & _Status & " at " & FORMAT(percentComplete, "0%") & "."
+
+    /// Builds alt text describing an actual value against a target and a comparative benchmark
+    FUNCTION BulletChartAltText = (
+            context: STRING,
+            actual: DOUBLE,
+            target: DOUBLE,
+            comparative: DOUBLE
+        ) =>
+            VAR _PctOfTarget = DIVIDE(actual, target)
+            VAR _Comparison = IF(actual >= target, "meets or exceeds", "falls short of")
+            RETURN
+                context & " - " & actual & " " & _Comparison & " the target of " & target &
+                " (" & FORMAT(_PctOfTarget, "0%") & " of target), compared to a benchmark of " & comparative & "."
+
+    /// Builds alt text describing a trend across a series of points
+    FUNCTION SparkBarsAltText = (
+            context: STRING,
+            firstValue: DOUBLE,
+            lastValue: DOUBLE,
+            minValue: DOUBLE,
+            maxValue: DOUBLE,
+            pointCount: INT64
+        ) =>
+            VAR _Trend =
+                SWITCH(
+                    TRUE(),
+                    lastValue > firstValue, "an upward",
+                    lastValue < firstValue, "a downward",
+                    "a flat"
+                )
+            RETURN
+                context & " - " & _Trend & " trend from " & firstValue & " to " & lastValue &
+                " over " & pointCount & " periods (ranging from " & minValue & " to " & maxValue & ")."
+
+    /// Builds alt text describing a rating value out of a maximum
+    FUNCTION RatingDotsAltText = (
+            context: STRING,
+            rating: DOUBLE,
+            maxRating: INT64
+        ) =>
+            context & " - " & FORMAT(rating, "0.0") & " out of " & maxRating & "."
+
+    /// Builds alt text describing a status value
+    FUNCTION StatusPillAltText = (
+            context: STRING,
+            status: STRING
+        ) =>
+            context & " - " & status & "."
+
+    /// Builds alt text describing a signed percentage variance
+    FUNCTION VarianceChipAltText = (
+            context: STRING,
+            variance: DOUBLE
+        ) =>
+            VAR _Direction = IF(variance >= 0, "an increase", "a decrease")
+            RETURN
+                context & " - " & _Direction & " of " & FORMAT(ABS(variance), "0.0") & "%."
+
+EVALUATE
+    {
+        ProgressBarAltText("Q3 project completion", 0.72),
+        BulletChartAltText("Monthly sales vs target", 180, 250, 280),
+        SparkBarsAltText("12-month revenue trend", 3, 9, 1, 9, 8),
+        RatingDotsAltText("Customer satisfaction rating", 4, 5),
+        StatusPillAltText("Project status", "On track"),
+        VarianceChipAltText("Revenue variance vs prior period", 14.9)
+    }
