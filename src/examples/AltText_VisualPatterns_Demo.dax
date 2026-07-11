@@ -1,0 +1,144 @@
+// ============================================================
+// PROGRESS BAR
+// ============================================================
+
+Progress % =
+0.72 // PLACEHOLDER — mirrors VAR _Pct in [Progress Bar]. Replace with your real completion ratio,
+     // e.g. DIVIDE([Units Completed], [Units Planned])
+
+Progress Bar Context =
+"Q3 project completion" // PLACEHOLDER — replace with real dynamic context describing what this progress bar tracks
+
+Progress Bar Alt Text = ProgressBarAltText([Progress Bar Context], [Progress %])
+// Example narrative with the placeholder values above:
+// "Q3 project completion - underway at 72%."
+
+// ============================================================
+// BULLET CHART
+// ============================================================
+
+Bullet Actual =
+180 // PLACEHOLDER — mirrors VAR _ActualW in [Bullet Chart]. Replace with your real measured value,
+    // e.g. [Sales This Period]
+
+Bullet Target =
+250 // PLACEHOLDER — mirrors VAR _TargetX in [Bullet Chart]. Replace with your real goal/target value,
+    // e.g. [Sales Target]
+
+Bullet Comparative =
+280 // PLACEHOLDER — mirrors VAR _CompW in [Bullet Chart]. Replace with your real benchmark value,
+    // e.g. [Sales Same Period Last Year]
+
+Bullet Chart Context =
+"Monthly sales vs target" // PLACEHOLDER — replace with real dynamic context describing what this bullet chart tracks
+
+Bullet Chart Alt Text = BulletChartAltText([Bullet Chart Context], [Bullet Actual], [Bullet Target], [Bullet Comparative])
+// Example narrative with the placeholder values above:
+// "Monthly sales vs target - 180 falls short of the target of 250 (72% of target), compared to a benchmark of 280."
+
+// ============================================================
+// SPARK BARS
+// ============================================================
+
+Spark First =
+MAXX(FILTER(SparkData, SparkData[Idx] = MINX(SparkData, SparkData[Idx])), SparkData[Val])
+// PLACEHOLDER — mirrors the earliest point already read inside [Spark Bars]'s CONCATENATEX.
+// This one isn't a hardcoded number like the others; it reads live from SparkData, so swap SparkData
+// for your real trend table if the source differs.
+
+Spark Last =
+MAXX(FILTER(SparkData, SparkData[Idx] = MAXX(SparkData, SparkData[Idx])), SparkData[Val])
+// PLACEHOLDER — mirrors the latest point already read inside [Spark Bars]'s CONCATENATEX.
+
+Spark Min =
+MINX(SparkData, SparkData[Val])
+// PLACEHOLDER — mirrors the same SparkData[Val] column [Spark Bars] already iterates over.
+
+Spark Max =
+MAXX(SparkData, SparkData[Val])
+// PLACEHOLDER — mirrors the same SparkData[Val] column [Spark Bars] already iterates over.
+
+Spark Count =
+COUNTROWS(SparkData)
+// PLACEHOLDER — mirrors the same SparkData table [Spark Bars] already iterates over.
+
+Spark Bars Context =
+"12-month revenue trend" // PLACEHOLDER — replace with real dynamic context describing what this trend represents
+
+Spark Bars Alt Text = SparkBarsAltText([Spark Bars Context], [Spark First], [Spark Last], [Spark Min], [Spark Max], [Spark Count])
+// Example narrative (using illustrative sample values first=3, last=9, min=1, max=9, count=8,
+// since the real numbers depend on whatever is currently in SparkData):
+// "12-month revenue trend - an upward trend from 3 to 9 over 8 periods (ranging from 1 to 9)."
+
+// ============================================================
+// RATING DOTS
+// ============================================================
+
+Rating Value =
+4 // PLACEHOLDER — mirrors VAR _Rating in [Rating Dots]. Replace with your real rating,
+  // e.g. [Average Customer Rating]
+
+Rating Max =
+5 // PLACEHOLDER — mirrors the "5" in GENERATESERIES(1,5,1) in [Rating Dots]. Replace if your
+  // rating scale isn't out of 5.
+
+Rating Dots Context =
+"Customer satisfaction rating" // PLACEHOLDER — replace with real dynamic context describing what this rating measures
+
+Rating Dots Alt Text = RatingDotsAltText([Rating Dots Context], [Rating Value], [Rating Max])
+// Example narrative with the placeholder values above:
+// "Customer satisfaction rating - 4.0 out of 5."
+
+// ============================================================
+// STATUS PILL (and At Risk variant)
+// ============================================================
+
+Status Text =
+"On track" // PLACEHOLDER — mirrors VAR _Status in [Status Pill]. Replace with your real status
+           // calculation, e.g. IF([Variance %] >= 0, "On track", "At risk")
+
+Status At Risk Text =
+"At risk" // PLACEHOLDER — mirrors VAR _Status in [Status Pill At Risk]. Replace with your real
+          // status calculation for this variant.
+
+Status Pill Context =
+"Project status" // PLACEHOLDER — replace with real dynamic context describing what is being tracked
+
+Status Pill At Risk Context =
+"Project status" // PLACEHOLDER — replace with real dynamic context for this variant
+
+Status Pill Alt Text = StatusPillAltText([Status Pill Context], [Status Text])
+// Example narrative with the placeholder values above:
+// "Project status - On track."
+
+Status Pill At Risk Alt Text = StatusPillAltText([Status Pill At Risk Context], [Status At Risk Text])
+// Example narrative with the placeholder values above:
+// "Project status - At risk."
+// Note: this is the SAME UDF as above (StatusPillAltText) — just called with a different status value.
+
+// ============================================================
+// VARIANCE CHIP (and Negative variant)
+// ============================================================
+
+Variance % =
+14.9 // PLACEHOLDER — mirrors VAR _Var in [Variance Chip]. Replace with your real variance calc,
+     // e.g. DIVIDE([Actual] - [Prior Period], [Prior Period])
+
+Variance Negative % =
+-3.2 // PLACEHOLDER — mirrors VAR _Var in [Variance Chip Negative]. Replace with your real variance
+     // calc for this variant.
+
+Variance Chip Context =
+"Revenue variance vs prior period" // PLACEHOLDER — replace with real dynamic context
+
+Variance Chip Negative Context =
+"Cost variance vs prior period" // PLACEHOLDER — replace with real dynamic context for this variant
+
+Variance Chip Alt Text = VarianceChipAltText([Variance Chip Context], [Variance %])
+// Example narrative with the placeholder values above:
+// "Revenue variance vs prior period - an increase of 14.9%."
+
+Variance Chip Negative Alt Text = VarianceChipAltText([Variance Chip Negative Context], [Variance Negative %])
+// Example narrative with the placeholder values above:
+// "Cost variance vs prior period - a decrease of 3.2%."
+// Note: this is the SAME UDF as above (VarianceChipAltText) — just called with a negative value.
