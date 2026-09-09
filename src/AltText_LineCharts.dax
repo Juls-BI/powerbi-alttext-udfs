@@ -3,8 +3,8 @@
    Repository: https://github.com/Juls-BI/powerbi-alttext-udfs
    Author: Juliana Smith
    Purpose:
-   This file contains reusable DAX UDFs and supporting measures for generating
-   accessible, descriptive alt text for line charts in Power BI.
+   This file contains reusable DAX UDFs and supporting measures for generating accessible, descriptive alt text for line charts in Power BI.
+   
 
    Contents:
    - AltText_LineChart UDF
@@ -22,8 +22,8 @@
    AltText_LineChart UDF
    Purpose:
    Generates dynamic, descriptive alt text for line charts showing Revenue and Cost trends.
-   Includes month over month (MoM) and year to date (YTD) insights, with contextual wording
-   based on percentage changes and current vs previous month values.
+   Includes month over month (MoM) and year to date (YTD) insights, with contextual wording based on percentage changes and current vs previous month values.
+   
 
    Key Features:
    - Automatically detects trend strength (strong, slight, stable)
