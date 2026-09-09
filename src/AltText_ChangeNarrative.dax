@@ -1,8 +1,7 @@
 DEFINE
     /**
      * AltText_ChangeNarrative
-     * Generates an accessible narrative describing a KPI value,
-     * optional comparison vs a previous period, and optional contextual text.
+     * Generates an accessible narrative describing a KPI value,optional comparison vs a previous period, and optional contextual text.
      *
      * This function is fully generic and works with ANY measure.
      * 
