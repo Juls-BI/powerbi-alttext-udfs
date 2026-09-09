@@ -1,5 +1,14 @@
 DEFINE
-    /// Builds alt text describing completion progress
+    /// ProgressBarAltText
+    /// Builds alt text describing completion progress against a 0–1 fraction complete
+    /// (e.g. for a progress bar visual).
+    /// context: leading label describing what's being measured, e.g. "Q3 project completion"
+    /// percentComplete: completion as a DECIMAL FRACTION (0–1), not 0–100 — FORMAT's "0%"
+    ///   mask does the ×100 conversion
+    /// Returns: "<context> - <status> at <percent>." where status is one of
+    ///   "finished" (>=100%), "nearly finished" (>=75%), "underway" (>=25%), "just starting" (<25%)
+    /// Example: ProgressBarAltText("Q3 project completion", 0.72)
+    ///   → "Q3 project completion - underway at 72%."
     FUNCTION ProgressBarAltText = (
             context: STRING,
             percentComplete: DOUBLE
@@ -15,7 +24,18 @@ DEFINE
             RETURN
                 context & " - " & _Status & " at " & FORMAT(percentComplete, "0%") & "."
 
-    /// Builds alt text describing an actual value against a target and a comparative benchmark
+    /// BulletChartAltText
+    /// Builds alt text describing an actual value against a target and a comparative
+    /// benchmark (e.g. for a bullet chart: actual bar vs target marker vs benchmark range).
+    /// context: leading label describing what's being measured
+    /// actual: the actual/current value
+    /// target: the target value actual is being measured against
+    /// comparative: a secondary benchmark for additional context (e.g. prior period, industry average)
+    /// Returns: "<context> - <actual> <meets or exceeds/falls short of> the target of <target>
+    ///   (<pct>% of target), compared to a benchmark of <comparative>."
+    /// NOTE: _PctOfTarget uses DIVIDE, so target = 0 returns BLANK rather than erroring;
+    ///   concatenated via "&" that renders as an empty percentage (e.g. "( % of target)")
+    ///   rather than "0%" or an error — worth guarding explicitly if target can legitimately be 0.
     FUNCTION BulletChartAltText = (
             context: STRING,
             actual: DOUBLE,
@@ -28,7 +48,19 @@ DEFINE
                 context & " - " & actual & " " & _Comparison & " the target of " & target &
                 " (" & FORMAT(_PctOfTarget, "0%") & " of target), compared to a benchmark of " & comparative & "."
 
-    /// Builds alt text describing a trend across a series of points
+    /// SparkBarsAltText
+    /// Builds alt text describing a trend across a series of points (e.g. for a sparkline
+    /// / spark-bars visual).
+    /// context: leading label describing the series
+    /// firstValue, lastValue: the series' first and last data points — trend direction is
+    ///   derived ONLY from these two, not from the shape of the series in between
+    /// minValue, maxValue: the series' minimum and maximum, reported as a supporting range
+    /// pointCount: number of data points in the series
+    /// Returns: "<context> - a(n) <upward/downward/flat> trend from <firstValue> to <lastValue>
+    ///   over <pointCount> periods (ranging from <minValue> to <maxValue>)."
+    /// NOTE: because trend is first-vs-last only, a series that dips and recovers (e.g. 3 → 9 → 1 → 9)
+    ///   can report as "flat" or a shallow trend even though it moved a lot in between — the
+    ///   min/max clause is the only place that intermediate variation shows up in the text.
     FUNCTION SparkBarsAltText = (
             context: STRING,
             firstValue: DOUBLE,
@@ -48,7 +80,13 @@ DEFINE
                 context & " - " & _Trend & " trend from " & firstValue & " to " & lastValue &
                 " over " & pointCount & " periods (ranging from " & minValue & " to " & maxValue & ")."
 
-    /// Builds alt text describing a rating value out of a maximum
+    /// RatingDotsAltText
+    /// Builds alt text describing a rating value out of a maximum (e.g. for a star/dot rating visual).
+    /// context: leading label describing what's being rated
+    /// rating: the rating value, reported to one decimal place
+    /// maxRating: the maximum possible rating (the scale's ceiling)
+    /// Returns: "<context> - <rating> out of <maxRating>."
+    /// Example: RatingDotsAltText("Customer satisfaction rating", 4, 5) → "Customer satisfaction rating - 4.0 out of 5."
     FUNCTION RatingDotsAltText = (
             context: STRING,
             rating: DOUBLE,
@@ -56,14 +94,28 @@ DEFINE
         ) =>
             context & " - " & FORMAT(rating, "0.0") & " out of " & maxRating & "."
 
-    /// Builds alt text describing a status value
+    /// StatusPillAltText
+    /// Builds alt text describing a status value (e.g. for a status pill/badge visual).
+    /// context: leading label describing what the status applies to
+    /// status: the status text itself, e.g. "On track", "At risk", "Blocked" — passed straight
+    ///   through with no validation, so callers control the exact wording
+    /// Returns: "<context> - <status>."
     FUNCTION StatusPillAltText = (
             context: STRING,
             status: STRING
         ) =>
             context & " - " & status & "."
 
-    /// Builds alt text describing a signed percentage variance
+    /// VarianceChipAltText
+    /// Builds alt text describing a signed percentage variance (e.g. for a variance chip/indicator).
+    /// context: leading label describing what's varying
+    /// variance: expects an ALREADY-SCALED percentage number (14.9 means "14.9%"), NOT a 0–1
+    ///   decimal fraction — this is the opposite convention to ProgressBarAltText's percentComplete,
+    ///   so don't feed a raw fraction (e.g. 0.149) into this parameter expecting the same result
+    /// Returns: "<context> - a(n) increase/decrease of <|variance|>%." (sign only determines direction;
+    ///   the magnitude reported is always positive via ABS)
+    /// Example: VarianceChipAltText("Revenue variance vs prior period", 14.9)
+    ///   → "Revenue variance vs prior period - an increase of 14.9%."
     FUNCTION VarianceChipAltText = (
             context: STRING,
             variance: DOUBLE
